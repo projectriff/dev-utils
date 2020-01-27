@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	offset          int32
+	fromBeginning bool
 	streamGVRc      = schema.GroupVersionResource{
 		Group:    "streaming.projectriff.io",
 		Version:  "v1alpha1",
@@ -69,7 +69,7 @@ var subscribeCmd = &cobra.Command{
 	Use:     "subscribe-stream <stream-name>",
 	Short:   "subscribe for events from the given stream",
 	Long:    "",
-	Example: "subscribe-stream letters",
+	Example: "subscribe-stream letters --from-beginning",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -128,7 +128,7 @@ var subscribeCmd = &cobra.Command{
 		eventErrHandler = func(_ context.CancelFunc, err error) {
 			fmt.Printf("ERROR: %v\n", err)
 		}
-		_, err = sc.Subscribe(ctx, fmt.Sprintf("g%d", time.Now().UnixNano()), 0, eventHandler, eventErrHandler)
+		_, err = sc.Subscribe(ctx, fmt.Sprintf("g%d", time.Now().UnixNano()), fromBeginning, eventHandler, eventErrHandler)
 		if err != nil {
 			fmt.Println("error while subscribing", err)
 			os.Exit(1)
@@ -138,5 +138,6 @@ var subscribeCmd = &cobra.Command{
 }
 
 func init() {
+	subscribeCmd.Flags().BoolVarP(&fromBeginning, "from-beginning", "b", false, "read everything in the stream")
 	subscribeCmd.Flags().StringVarP(&namespaceC, "namespace", "n", "", "namespace of the stream")
 }
