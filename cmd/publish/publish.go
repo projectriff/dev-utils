@@ -18,6 +18,7 @@ import (
 
 var (
 	payload     string
+	payloadBase64 string
 	contentType string
 	header      []string
 	streamGVRp  = schema.GroupVersionResource{
@@ -103,7 +104,9 @@ var publishCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		_, err = sc.Publish(ctx, strings.NewReader(payload), nil, contentType, m)
+
+		resolvedPayload, err := resolvePayload(payload, payloadBase64)
+		_, err = sc.Publish(ctx, strings.NewReader(resolvedPayload), nil, contentType, m)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -111,11 +114,30 @@ var publishCmd = &cobra.Command{
 	},
 }
 
+func resolvePayload(payload string, payloadBase64 string) (string, error) {
+	if payload != "" && payloadBase64 != "" {
+		return "", errors.New("the options --payload and --payload-base64 are mutually exclusive")
+	}
+	if payloadBase64 != "" {
+		if !IsBase64(payloadBase64) {
+			return "", errors.New("the payload is not base64 encoded")
+		}
+		return payloadBase64, nil
+	}
+	return payload, nil
+}
+
+func IsBase64(s string) bool {
+	_, err := base64.StdEncoding.DecodeString(s)
+	return err == nil
+}
+
 func init() {
 	publishCmd.Flags().StringVarP(&namespaceP, "namespace", "n", "", "namespace of the stream")
 	publishCmd.Flags().StringVarP(&payload, "payload", "p", "", "the content/payload to publish to stream")
 	publishCmd.Flags().StringVarP(&contentType, "content-type", "c", "", "mime type of content")
 	publishCmd.Flags().StringArrayVarP(&header, "header", "", header, "headers for the payload")
+	publishCmd.Flags().StringVarP(&payloadBase64, "payload-base64", "b", "", "base64 encoded payload")
 	err := publishCmd.MarkFlagRequired("content-type")
 	if err != nil {
 		panic(err)
