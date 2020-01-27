@@ -43,7 +43,7 @@ var publishCmd = &cobra.Command{
 	Use:     "publish <stream-name> <payload>",
 	Short:   "publish events to the given stream",
 	Long:    "",
-	Example: "publish letters --payload=my-value",
+	Example: "publish letters --content-type text/plain --payload my-value",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -86,9 +86,9 @@ var publishCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		contentType, err := k8sClient.GetNestedString(args[0], namespaceP, streamGVRp, "spec", "contentType")
+		acceptableContentType, err := k8sClient.GetNestedString(args[0], namespaceP, streamGVRp, "spec", "acceptableContentType")
 		if err != nil {
-			fmt.Println("error while determining contentType for stream", err)
+			fmt.Println("error while determining acceptableContentType for stream", err)
 			os.Exit(1)
 		}
 
@@ -98,7 +98,7 @@ var publishCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		sc, err := client.NewStreamClient(string(gateway), string(topic), contentType)
+		sc, err := client.NewStreamClient(string(gateway), string(topic), acceptableContentType)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -116,6 +116,10 @@ func init() {
 	publishCmd.Flags().StringVarP(&payload, "payload", "p", "", "the content/payload to publish to stream")
 	publishCmd.Flags().StringVarP(&contentType, "content-type", "c", "", "mime type of content")
 	publishCmd.Flags().StringArrayVarP(&header, "header", "", header, "headers for the payload")
+	err := publishCmd.MarkFlagRequired("content-type")
+	if err != nil {
+		panic(err)
+	}
 }
 
 func getMapFromHeaders(headers []string) (map[string]string, error) {
