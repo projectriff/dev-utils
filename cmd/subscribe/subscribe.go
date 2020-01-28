@@ -66,10 +66,10 @@ var eventHandler = func(ctx context.Context, payload io.Reader, contentType stri
 }
 
 var subscribeCmd = &cobra.Command{
-	Use:     "subscribe-stream <stream-name>",
+	Use:     "subscribe <stream-name>",
 	Short:   "subscribe for events from the given stream",
 	Long:    "",
-	Example: "subscribe-stream letters --from-beginning",
+	Example: "subscribe letters --from-beginning",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, cancel := context.WithCancel(context.Background())
