@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -17,11 +19,11 @@ import (
 )
 
 var (
-	payload     string
+	payload       string
 	payloadBase64 string
-	contentType string
-	header      []string
-	streamGVRp  = schema.GroupVersionResource{
+	contentType   string
+	header        []string
+	streamGVRp    = schema.GroupVersionResource{
 		Group:    "streaming.projectriff.io",
 		Version:  "v1alpha1",
 		Resource: "streams",
@@ -106,7 +108,7 @@ var publishCmd = &cobra.Command{
 		}
 
 		resolvedPayload, err := resolvePayload(payload, payloadBase64)
-		_, err = sc.Publish(ctx, strings.NewReader(resolvedPayload), nil, contentType, m)
+		_, err = sc.Publish(ctx, resolvedPayload, nil, contentType, m)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -114,22 +116,18 @@ var publishCmd = &cobra.Command{
 	},
 }
 
-func resolvePayload(payload string, payloadBase64 string) (string, error) {
+func resolvePayload(payload string, payloadBase64 string) (io.Reader, error) {
 	if payload != "" && payloadBase64 != "" {
-		return "", errors.New("the options --payload and --payload-base64 are mutually exclusive")
+		return nil, errors.New("the options --payload and --payload-base64 are mutually exclusive")
 	}
 	if payloadBase64 != "" {
-		if !IsBase64(payloadBase64) {
-			return "", errors.New("the payload is not base64 encoded")
+		payloadBytes, err := base64.StdEncoding.DecodeString(payloadBase64)
+		if err != nil {
+			return nil, errors.New("the payload is not base64 encoded")
 		}
-		return payloadBase64, nil
+		return bytes.NewReader(payloadBytes), nil
 	}
-	return payload, nil
-}
-
-func IsBase64(s string) bool {
-	_, err := base64.StdEncoding.DecodeString(s)
-	return err == nil
+	return strings.NewReader(payload), nil
 }
 
 func init() {
