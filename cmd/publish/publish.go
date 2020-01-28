@@ -87,7 +87,7 @@ var publishCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		acceptableContentType, err := k8sClient.GetNestedString(args[0], namespaceP, streamGVRp, "spec", "acceptableContentType")
+		acceptableContentType, err := k8sClient.GetNestedString(args[0], namespaceP, streamGVRp, "spec", "contentType")
 		if err != nil {
 			fmt.Println("error while determining acceptableContentType for stream", err)
 			os.Exit(1)
