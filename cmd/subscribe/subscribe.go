@@ -19,7 +19,7 @@ import (
 
 var (
 	fromBeginning bool
-	streamGVRc      = schema.GroupVersionResource{
+	streamGVRc    = schema.GroupVersionResource{
 		Group:    "streaming.projectriff.io",
 		Version:  "v1alpha1",
 		Resource: "streams",
@@ -51,6 +51,9 @@ var eventHandler = func(ctx context.Context, payload io.Reader, contentType stri
 	}
 
 	payloadStr := base64.StdEncoding.EncodeToString(bytes)
+	if headers == nil {
+		headers = make(map[string]string, 0)
+	}
 
 	evt := Event{
 		Payload:     payloadStr,
