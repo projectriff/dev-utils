@@ -4,18 +4,18 @@ This repository provides tools for riff users to develop and debug functions. Th
 ## Using the tools
 These tools can be used by running a simple pod in the k8s cluster with a configuration like this:
 ```bash
-kubectl run riff-dev --image=projectriff/dev-utils --generator=run-pod/v1
+kubectl run --namespace ${NAMESPACE} riff-dev --image=projectriff/dev-utils --generator=run-pod/v1
 ```
 Then depending upon which riff runtime you are using, create the appropriate clusterrolebindings:
 ```bash
-kubectl create clusterrolebinding riff-util-stream --clusterrole=riff-streaming-readonly-role --serviceaccount=default:default
-kubectl create clusterrolebinding riff-util-core --clusterrole=riff-core-readonly-role --serviceaccount=default:default
-kubectl create clusterrolebinding riff-util-knative --clusterrole=riff-knative-readonly-role --serviceaccount=default:default
+kubectl create clusterrolebinding riff-util-stream --clusterrole=riff-streaming-readonly-role --serviceaccount=${NAMESPACE}:default
+kubectl create clusterrolebinding riff-util-core --clusterrole=riff-core-readonly-role --serviceaccount=${NAMESPACE}:default
+kubectl create clusterrolebinding riff-util-knative --clusterrole=riff-knative-readonly-role --serviceaccount=${NAMESPACE}:default
 ```
 The `publish` and `subscribe` tools will additionally require read access to secrets in your development namespace:
 ```bash
 kubectl create role view-secrets-role --namespace ${NAMESPACE} --resource secrets --verb get,watch,list
-kubectl create rolebinding riff-util-secrets --namespace ${NAMESPACE} --role=view-secrets-role --serviceaccount=default:default
+kubectl create rolebinding riff-util-secrets --namespace ${NAMESPACE} --role=view-secrets-role --serviceaccount=${NAMESPACE}:default
 ```
 
 ## Included tools
@@ -46,9 +46,9 @@ The namespace parameter is optional for all the commands. If not specified, the 
 These tools can be invoked using kubectl exec. some examples follow:
 
 ```bash
-kubectl exec riff-dev -it -- publish letters --content-type text/plain --payload foo
+kubectl exec --namespace ${NAMESPACE} riff-dev -it -- publish letters --content-type text/plain --payload foo
 ```
 
 ```bash
-kubectl exec riff-dev -it -- subscribe letters --from-beginning
+kubectl exec --namespace ${NAMESPACE} riff-dev -it -- subscribe letters --from-beginning
 ```
