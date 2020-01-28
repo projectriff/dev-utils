@@ -2,14 +2,17 @@
 This repository provides tools for riff users to develop and debug functions. These tools are bundled in a container image that is meant to be run in the development cluster.
 
 ## Using the tools
-These tools can be used by running a simple pod in the k8s cluster with a configuration like this:
+These tools can be used by running a pod in the k8s cluster with a configuration like this:
 ```bash
-kubectl run riff-dev --namespace ${NAMESPACE} --image=projectriff/dev-utils --generator=run-pod/v1
+# create a service account to run with
+kubectl create serviceaccount riff-dev --namespace=${NAMESPACE}
+# grant that service account edit access to resources in the namespace
+kubectl create rolebinding riff-dev-edit --namespace=${NAMESPACE} --clusterrole=edit --serviceaccount=${NAMESPACE}:riff-dev
+# run the utils using the service account as a pod
+kubectl run riff-dev --namespace=${NAMESPACE} --image=projectriff/dev-utils --serviceaccount=riff-dev --generator=run-pod/v1
 ```
-Then create a rolebinding to give the utils access to resources in the same namespace:
-```bash
-kubectl create rolebinding riff-dev --namespace ${NAMESPACE} --clusterrole=edit --serviceaccount=${NAMESPACE}:default
-```
+
+As pods do not survive node failures, over time the riff-dev pod may stop running. When this happens create a new pod using the same service account.
 
 ## Included tools
 1. **publish:** To publish an event to the given stream.
@@ -44,4 +47,8 @@ kubectl exec riff-dev --namespace ${NAMESPACE} -it -- publish letters --content-
 
 ```bash
 kubectl exec riff-dev --namespace ${NAMESPACE} -it -- subscribe letters --from-beginning
+```
+
+```bash
+kubectl exec riff-dev --namespace ${NAMESPACE} -it -- curl http://hello.default.svc.cluster.local/ -H 'Content-Type: text/plain' -H 'Accept: text/plain' -d '<insert your name>'
 ```
