@@ -52,3 +52,7 @@ kubectl exec riff-dev --namespace ${NAMESPACE} -it -- subscribe letters --from-b
 ```bash
 kubectl exec riff-dev --namespace ${NAMESPACE} -it -- curl http://hello.default.svc.cluster.local/ -H 'Content-Type: text/plain' -H 'Accept: text/plain' -d '<insert your name>'
 ```
+
+```bash
+kubectl exec riff-dev --namespace ${NAMESPACE} -it -- bash
+```
