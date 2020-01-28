@@ -4,18 +4,18 @@ This repository provides tools for riff users to develop and debug functions. Th
 ## Using the tools
 These tools can be used by running a simple pod in the k8s cluster with a configuration like this:
 ```bash
-kubectl run dev-utils --image=projectriff/dev-utils --generator=run-pod/v1
+kubectl run riff-dev --image=projectriff/dev-utils --generator=run-pod/v1
 ```
 Then depending upon which riff runtime you are using, create the appropriate clusterrolebindings:
 ```bash
-kubectl create clusterrolebinding dev-util-stream --clusterrole=riff-streaming-readonly-role --serviceaccount=default:default
-kubectl create clusterrolebinding dev-util-core --clusterrole=riff-core-readonly-role --serviceaccount=default:default
-kubectl create clusterrolebinding dev-util-knative --clusterrole=riff-knative-readonly-role --serviceaccount=default:default
+kubectl create clusterrolebinding riff-util-stream --clusterrole=riff-streaming-readonly-role --serviceaccount=default:default
+kubectl create clusterrolebinding riff-util-core --clusterrole=riff-core-readonly-role --serviceaccount=default:default
+kubectl create clusterrolebinding riff-util-knative --clusterrole=riff-knative-readonly-role --serviceaccount=default:default
 ```
 The `publish` and `subscribe` tools will additionally require read access to secrets in your development namespace:
 ```bash
 kubectl create role view-secrets-role --namespace ${NAMESPACE} --resource secrets --verb get,watch,list
-kubectl create rolebinding dev-util-secrets --namespace ${NAMESPACE} --role=view-secrets-role --serviceaccount=default:default
+kubectl create rolebinding riff-util-secrets --namespace ${NAMESPACE} --role=view-secrets-role --serviceaccount=default:default
 ```
 
 ## Included tools
@@ -40,11 +40,15 @@ The command takes the form:
 
 1. [curl](https://curl.haxx.se/): To make HTTP requests.
 
-The namespace parameter is optional for all the commands. If not specified, the namespace of the `dev-utils` pod will be assumed.
+The namespace parameter is optional for all the commands. If not specified, the namespace of the `riff-dev` pod will be assumed.
 
 ## Examples
 These tools can be invoked using kubectl exec. some examples follow:
+
 ```bash
-kubectl exec dev-utils -it -- publish letters --content-type text/plain --payload foo
-kubectl exec dev-utils -it -- subscribe letters --from-beginning
+kubectl exec riff-dev -it -- publish letters --content-type text/plain --payload foo
+```
+
+```bash
+kubectl exec riff-dev -it -- subscribe letters --from-beginning
 ```
