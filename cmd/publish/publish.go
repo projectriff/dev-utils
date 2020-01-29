@@ -43,7 +43,7 @@ func main() {
 }
 
 var publishCmd = &cobra.Command{
-	Use:     "publish <stream-name> <payload>",
+	Use:     "publish <stream-name>",
 	Short:   "publish events to the given stream",
 	Long:    "",
 	Example: "publish letters --content-type text/plain --payload my-value",
