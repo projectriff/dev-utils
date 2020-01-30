@@ -10,8 +10,15 @@ readonly git_sha=$(git rev-parse HEAD)
 readonly git_timestamp=$(TZ=UTC git show --quiet --date='format-local:%Y%m%d%H%M%S' --format="%cd")
 readonly slug=${version}-${git_timestamp}-${git_sha:0:16}
 
-docker tag projectriff/dev-utils:latest projectriff/dev-utils:${version}
-docker tag projectriff/dev-utils:latest projectriff/dev-utils:${slug}
+pubishImage() {
+  local tag=$1
 
-docker push projectriff/dev-utils:${version}
-docker push projectriff/dev-utils:${slug}
+  docker tag projectriff/dev-utils:latest projectriff/dev-utils:${tag}
+  docker push projectriff/dev-utils:${tag}
+}
+
+pubishImage ${slug}
+pubishImage ${version}
+if [ $git_branch = master ] ; then
+  pubishImage latest
+fi
