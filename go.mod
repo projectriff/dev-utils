@@ -8,3 +8,5 @@ require (
 	k8s.io/apimachinery v0.16.6
 	k8s.io/client-go v0.16.6
 )
+
+replace github.com/projectriff/stream-client-go => github.com/ericbottard/stream-client-go v0.0.0-20200204150506-7cfb9bf48a59
