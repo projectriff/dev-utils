@@ -35,7 +35,7 @@ RUN apt-get update \
   && apt-get remove -y --auto-remove gnupg2 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && curl -L https://storage.googleapis.com/projectriff/riff-cli/releases/v0.5.0-snapshot/riff-linux-amd64.tgz | tar xz -C /riff/dev-utils/bin \
+  && curl -L https://storage.googleapis.com/projectriff/riff-cli/releases/v0.5.0/riff-linux-amd64.tgz | tar xz -C /riff/dev-utils/bin \
   && riff completion --shell bash > /etc/bash_completion.d/riff
 
 CMD ["entrypoint.sh"]
