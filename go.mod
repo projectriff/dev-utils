@@ -6,5 +6,5 @@ require (
 	github.com/projectriff/stream-client-go v0.0.0-20200203203246-b0f81b40a96f
 	github.com/spf13/cobra v0.0.5
 	k8s.io/apimachinery v0.16.6
-	k8s.io/client-go v0.17.2
+	k8s.io/client-go v0.17.3
 )
