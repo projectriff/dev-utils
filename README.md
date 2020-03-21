@@ -62,3 +62,17 @@ kubectl exec riff-dev --namespace ${NAMESPACE} -it -- bash
 ```bash
 kafkacat -C -b YOUR_BROKER -t TOPIC
 ```
+
+## Running locally
+
+You can run the publish and subscribe cli locally by: 
+1. Building them using
+    ```bash
+    go build cmd/publish/publish.go
+    go build cmd/subscribe/subscribe.go
+    ```
+1. Install [kubefwd](https://kubefwd.com/) and expose the gateway service to localhost
+    ```bash
+    sudo -E kubefwd svc -n NAMESPACE
+    ```
+1. Run the built publish and subscribe cli locally.

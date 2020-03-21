@@ -2,6 +2,7 @@ package devutil
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -9,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 var (
@@ -30,9 +32,16 @@ type K8sClient struct {
 }
 
 func NewK8sClient() *K8sClient {
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		panic(err.Error())
+	config, inClusterErr := rest.InClusterConfig()
+	if inClusterErr != nil {
+		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+		configOverrides := &clientcmd.ConfigOverrides{}
+		var localErr error
+		config, localErr = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides).ClientConfig()
+		if localErr != nil {
+			err := fmt.Errorf("Tried to fetch configuration in-cluster but failed: %w.\nTried locally, failed as well: %w", inClusterErr, localErr)
+			panic(err)
+		}
 	}
 	// creates the clientset
 	dynamicClient, err := dynamic.NewForConfig(config)
@@ -74,7 +83,13 @@ func resolveNamespace(namespace string) (string, error) {
 func getDefaultNamespace() (string, error) {
 	namespacebytes, err := ioutil.ReadFile(namespaceFilePath)
 	if err != nil {
-		return "", err
+		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+		configOverrides := &clientcmd.ConfigOverrides{}
+		ns, _, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides).Namespace()
+		if err != nil {
+			return "", err
+		}
+		return ns, err
 	}
 	return string(namespacebytes), nil
 }
