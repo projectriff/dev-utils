@@ -1,6 +1,7 @@
 package devutil
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -59,7 +60,7 @@ func (c *K8sClient) GetNestedString(streamName, namespace string, gvr schema.Gro
 		return "", err
 	}
 
-	stream, err := c.dc.Resource(gvr).Namespace(ns).Get(streamName, v1.GetOptions{})
+	stream, err := c.dc.Resource(gvr).Namespace(ns).Get(context.TODO(), streamName, v1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

@@ -8,7 +8,14 @@ on:
   pull_request: {}
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: docker build
+        run: docker build . -t projectriff/dev-utils
   publish:
+    needs: build
     if: |
       github.event_name == 'push' && startsWith(github.repository, 'projectriff/') && (
         github.ref == 'refs/heads/master' || (
