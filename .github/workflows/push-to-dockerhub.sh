@@ -19,6 +19,6 @@ publishImage() {
 
 publishImage ${slug}
 publishImage ${version}
-if [ $git_branch = master ] ; then
+if [ $git_branch = main ] ; then
   publishImage latest
 fi
