@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.3
+      - uses: actions/checkout@v2.3.4
       - name: docker build
         run: docker build . -t projectriff/dev-utils
   publish:
@@ -24,7 +24,7 @@ jobs:
       )
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.3
+      - uses: actions/checkout@v2.3.4
       - name: docker login
         run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
         env:
